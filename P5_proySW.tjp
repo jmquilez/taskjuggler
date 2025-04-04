@@ -3,6 +3,9 @@
  * project planification using TaskJuggler in the "Proyecto Software" course.
  * It is based on the Tutorial project offered by TaskJuggler and maintains 
  * some elements of it
+ * 
+ * Student: José Miguel Quílez Vergara
+ * NIP: 873499
  */
 
 project pSix "Web Game"  2024-12-15 +5m {
@@ -317,7 +320,7 @@ textreport frame "" {
     title "Initial Planning"
     center '<[report id="initialPlanning"]>'
   }
-  
+
   textreport "Status" {
     formats html
     center -8<-
