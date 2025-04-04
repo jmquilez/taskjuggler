@@ -376,7 +376,7 @@ macro AlertColor [
   cellcolor plan.alert = 1 "#D0D000" # yellow
   cellcolor plan.alert = 2 "#D00000" # red
 ]
-# t
+
 taskreport status "" {
   columns bsi { width 50 title 'WBS' }, name { width 150 },
           start { width 100 }, end { width 100 },
