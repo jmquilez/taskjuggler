@@ -19,7 +19,8 @@ project pSix "Web Game"  2024-12-15 +5m {
   # the project reports. If not specified, the current day will be
   # used, but this will likely be outside of the project range, so it
   # can't be seen in the reports.
-  now 2025-02-25-13:00
+  # NEW: Set current date
+  now 2025-04-04-16:22
   # The currency for all money values is the US Dollar.
   currency "EUR"
 
@@ -68,6 +69,11 @@ resource dev2 "Samantha Müller" {
 resource dev3 "Peter Green" {
   email "kkk@unizar.es"
 }
+# NEW: added myself as a resource
+resource jmquilez "José Miguel Quílez Vergara" {
+  email "873499@unizar.es"
+  limits { dailymin 4h dailymax 4h }
+}
 
 # Now we specify the work packages. The whole project is described as
 # a task that contains subtasks. These subtasks are then broken down
@@ -87,15 +93,23 @@ task WMGame "Web & Mobile Game" {
 
   task tgdesign "General System Design" {
       effort 2d
-      allocate boss
+      # NEW: allocated myself to this task
+      allocate boss, jmquilez
       depends WMGame.deliveries.start
+      # NEW: journal entry by me, with the current date
+      journalentry 2025-04-04 "Practice development" {
+        author jmquilez
+        alert green
+        summary "jmquilez was here."
+      }
   }
 
   task tback "Back End" {
     # It is necessary to “purge” the “chargeset” because it has been assigned previously to other variable 
     purge chargeset
     chargeset back
-    responsible dev1
+    # NEW: added myself as responsible for this task
+    responsible dev1, jmquilez
     depends WMGame.tgdesign
     task tBEd "Back End General Design" {
       # The effort to finish this task is 5 man-days.
@@ -115,7 +129,8 @@ task WMGame "Web & Mobile Game" {
     }
     task tbackDev "Back development" {
       effort 20d
-      allocate dev1, dev2
+      # NEW: allocated myself to this task
+      allocate dev1, dev2, jmquilez
       depends WMGame.tback.tlogic
     }
   }
@@ -148,15 +163,19 @@ task WMGame "Web & Mobile Game" {
   }
 
   task ttest "Acceptance tests" {
-      effort 10d
-      allocate boss
-      allocate dev2
-      actual:effort 20d
-      depends WMGame.twebF
-      depends WMGame.tback
-      }
+    effort 10d
+    allocate boss
+    allocate dev2
+    actual:effort 20d
+    depends WMGame.twebF
+    depends WMGame.tback
+    # NEW: the tests also depend on the mobile frontend and the backend deployment
+    depends WMGame.tmobF
+    depends WMGame.tbackDepl
+    # NEW: fecha de inicio como pronto
+    minstart 2025-05-15
+  }
 
-    
   task deliveries "Milestones" {
 
     # Some milestones have customer payments associated with them. We
@@ -180,6 +199,75 @@ task WMGame "Web & Mobile Game" {
     task done "Ship Product to Customer" {
       depends WMGame.ttest
       charge 12000.0 onstart
+    }
+  }
+
+  # NEW: tarea para el desarrollo del frontend movil, primer nivel
+  task tmobF "Mobile frontend" {
+    purge chargeset
+    chargeset mFront
+    responsible dev2
+    depends WMGame.tback.tBEd
+
+    task tGUId "Mobile GUI Design" {
+      effort 13d
+      actual:effort 20d
+      allocate dev1
+    }
+    task tFEc "Mobile Front End Construction" {
+      effort 22d
+      allocate dev2, dev3
+      depends WMGame.tmobF.tGUId
+      journalentry 2025-02-08 "Framework bugs" {
+        author dev2
+        alert red
+        summary "The framework is terrible. I'll keep going though."
+      }
+    }
+    task tFEt "Mobile Front End Test" {
+      effort 8d
+      allocate dev3
+      depends WMGame.tmobF.tFEc
+    }
+  }
+
+  # NEW: tarea para el despliegue del backend en el cloud, primer nivel
+  task tbackDepl "Backend cloud deployment" {
+    purge chargeset
+    chargeset back
+    responsible jmquilez
+    depends WMGame.tback.tbackDev
+
+    task tDec "Cloud platform selection" {
+      effort 2d
+      actual:effort 3d
+      # NEW: allocated myself to this task
+      allocate jmquilez
+      journalentry 2025-02-20 "Cloud platform selected" {
+        author jmquilez
+        alert green
+        summary "The cloud platform has been selected."
+      }
+    }
+
+    task tEval "Cloud platform evaluation" {
+      effort 3d
+      actual:effort 4d
+      allocate dev1, dev2
+      depends WMGame.tbackDepl.tDec 
+      journalentry 2025-02-25 "Cloud platform evaluated" {
+        author dev1
+        alert yellow
+        summary "The cloud platform has been evaluated."
+      }
+    }
+
+    task tDeploy "Cloud platform deployment" {
+      effort 5d
+      actual:effort 4d
+      # NEW: allocated myself to this task
+      allocate dev2, dev3, jmquilez
+      depends WMGame.tbackDepl.tEval
     }
   }
 }
@@ -270,6 +358,16 @@ taskreport overview "" {
   caption 'All effort values are in man days.'
 }
 
+# NEW: a report to show the initial planning of the project
+taskreport initialPlanning "" {
+  scenarios actual
+  headline "Initial Project Planning"
+  columns bsi { title 'WBS' }, name, start, end, effort { title "Work" },
+          duration, chart { ${TaskTip} scale day width 500 }
+  timeformat "%Y-%m-%d"
+  hideresource ~(isleaf() & isleaf_())
+  sortresources name.up
+}
 
 # Macro to set the background color of a cell according to the alert
 # level of the task.
