@@ -172,7 +172,7 @@ task WMGame "Web & Mobile Game" {
     # NEW: the tests also depend on the mobile frontend and the backend deployment
     depends WMGame.tmobF
     depends WMGame.tbackDepl
-    # NEW: fecha de inicio como pronto
+    # NEW: min start date for this task
     minstart 2025-05-15
   }
 
@@ -202,7 +202,7 @@ task WMGame "Web & Mobile Game" {
     }
   }
 
-  # NEW: tarea para el desarrollo del frontend movil, primer nivel
+  # NEW: task for the mobile frontend, first level
   task tmobF "Mobile frontend" {
     purge chargeset
     chargeset mFront
@@ -231,7 +231,7 @@ task WMGame "Web & Mobile Game" {
     }
   }
 
-  # NEW: tarea para el despliegue del backend en el cloud, primer nivel
+  # NEW: task for the cloud deployment, first level
   task tbackDepl "Backend cloud deployment" {
     purge chargeset
     chargeset back
@@ -365,13 +365,15 @@ taskreport overview "" {
 
 # NEW: a report to show the initial planning of the project
 taskreport initialPlanning "" {
-  scenarios actual
-  headline "Initial Project Planning"
+  scenarios plan
+  headline "Initial Project Plan"
   columns bsi { title 'WBS' }, name, start, end, effort { title "Work" },
           duration, chart { ${TaskTip} scale day width 500 }
   timeformat "%Y-%m-%d"
-  hideresource ~(isleaf() & isleaf_())
-  sortresources name.up
+  loadunit days
+  hideresource @all
+  balance cost rev
+  caption 'All effort values are in man days.'
 }
 
 # Macro to set the background color of a cell according to the alert
